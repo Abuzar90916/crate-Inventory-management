@@ -1,10 +1,28 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Boxes, Truck, Users, ArrowLeftRight, Package, AlertCircle } from "lucide-react";
+import {
+  Truck,
+  Users,
+  Package,
+  Layers,
+  CheckCircle2,
+  ArrowDownLeft,
+  ArrowUpRight,
+  TrendingDown,
+  TrendingUp,
+} from "lucide-react";
 
-import { AppShell, EmptyState } from "@/components/AppShell";
+import { AppShell } from "@/components/AppShell";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import {
   useDashboardStats,
   usePartyBalances,
@@ -17,10 +35,13 @@ import {
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "Dashboard — Narayan Dairy" },
+      { title: "Dashboard — Narayan Dairy Crate Management" },
       { name: "description", content: "Live crate totals, outstanding balances and recent movements." },
-      { property: "og:title", content: "Dashboard — Narayan Dairy" },
-      { property: "og:description", content: "Live crate totals, outstanding balances and recent movements." },
+      { property: "og:title", content: "Dashboard — Narayan Dairy Crate Management" },
+      {
+        property: "og:description",
+        content: "Live crate totals, outstanding balances and recent movements.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -28,39 +49,51 @@ export const Route = createFileRoute("/_authenticated/dashboard")({
   component: Dashboard,
 });
 
-function Stat({
+function MetricCard({
   label,
   value,
-  hint,
+  sublabel,
+  icon: Icon,
   loading,
   tone = "default",
 }: {
   label: string;
   value: number;
-  hint?: string;
+  sublabel?: string;
+  icon: any;
   loading: boolean;
-  tone?: "default" | "primary" | "warning";
+  tone?: "default" | "primary" | "success" | "accent";
 }) {
+  const toneClasses = {
+    default: "text-foreground bg-card border-border",
+    primary: "text-primary bg-primary/5 border-primary/20",
+    success: "text-emerald-700 bg-emerald-500/5 border-emerald-500/20",
+    accent: "text-blue-700 bg-blue-500/5 border-blue-500/20",
+  };
+
+  const iconBgClasses = {
+    default: "bg-muted text-muted-foreground",
+    primary: "bg-primary/10 text-primary",
+    success: "bg-emerald-100 text-emerald-700",
+    accent: "bg-blue-100 text-blue-700",
+  };
+
   return (
-    <div className="panel p-5">
-      <p className="text-xs font-medium tracking-wide text-muted-foreground uppercase">{label}</p>
+    <div className={`panel p-5 border transition-all ${toneClasses[tone]}`}>
+      <div className="flex items-center justify-between">
+        <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">{label}</p>
+        <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${iconBgClasses[tone]}`}>
+          <Icon className="size-5" />
+        </div>
+      </div>
       {loading ? (
-        <Skeleton className="mt-3 h-8 w-20" />
+        <Skeleton className="mt-3 h-9 w-24" />
       ) : (
-        <p
-          className={
-            "stat-figure mt-2 text-3xl font-semibold " +
-            (tone === "primary"
-              ? "text-primary"
-              : tone === "warning"
-                ? "text-warning"
-                : "text-foreground")
-          }
-        >
+        <p className="stat-figure mt-2 font-mono text-3xl font-bold">
           {value.toLocaleString()}
         </p>
       )}
-      {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
+      {sublabel && <p className="mt-1 text-xs text-muted-foreground">{sublabel}</p>}
     </div>
   );
 }
@@ -69,7 +102,7 @@ function Dashboard() {
   const stats = useDashboardStats();
   const vehicleBalances = useVehicleBalances();
   const partyBalances = usePartyBalances();
-  const transactions = useTransactions(8);
+  const transactions = useTransactions(10);
   const vehicles = useVehicles();
   const parties = useParties();
 
@@ -77,177 +110,287 @@ function Dashboard() {
   const loading = stats.isLoading;
 
   const vehicleName = (id: string | null) =>
-    vehicles.data?.find((v) => v.id === id)?.vehicle_number ?? "";
+    vehicles.data?.find((v) => v.id === id)?.vehicle_number ?? "Vehicle";
   const partyName = (id: string | null) =>
-    parties.data?.find((p) => p.id === id)?.party_name ?? "";
-
-  const topVehicles = (vehicleBalances.data ?? []).filter((v) => v.balance > 0).slice(0, 5);
-  const topParties = (partyBalances.data ?? []).filter((p) => p.balance > 0).slice(0, 5);
+    parties.data?.find((p) => p.id === id)?.party_name ?? "Party";
 
   return (
     <AppShell
       title="Dashboard"
-      description="Live figures calculated from recorded crate movements."
+      description="Real-time shared inventory and crate status across Narayan Dairy."
       actions={
-        <>
-          <Button asChild variant="outline">
-            <Link to="/inventory">Adjust stock</Link>
+        <div className="flex items-center gap-2">
+          <Button asChild variant="outline" size="sm">
+            <Link to="/inventory">Stock & Adjustments</Link>
           </Button>
-          <Button asChild>
-            <Link to="/transactions">Record movement</Link>
+          <Button asChild size="sm" className="bg-primary hover:bg-primary/90">
+            <Link to="/vehicles">Manage Vehicles</Link>
           </Button>
-        </>
+          <Button asChild size="sm" className="bg-blue-700 hover:bg-blue-800 text-white">
+            <Link to="/parties">Manage Parties</Link>
+          </Button>
+        </div>
       }
     >
-      {!loading && s && s.total_crates === 0 && (
-        <div className="mb-6 flex items-start gap-3 rounded-lg border border-border bg-secondary p-4">
-          <AlertCircle className="mt-0.5 size-5 text-primary" />
-          <div className="text-sm">
-            <p className="font-medium">No crates recorded yet.</p>
-            <p className="text-muted-foreground">
-              Add the crates you own on the Inventory page before issuing any out.
-            </p>
-          </div>
-        </div>
-      )}
-
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <Stat label="Total crates" value={s?.total_crates ?? 0} loading={loading} />
-        <Stat
-          label="Available"
+      {/* 4 Primary Metric Cards */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <MetricCard
+          label="Total Crates"
+          value={s?.total_crates ?? 0}
+          sublabel="Total owned dairy inventory"
+          icon={Layers}
+          loading={loading}
+          tone="default"
+        />
+        <MetricCard
+          label="Available Crates"
           value={s?.available ?? 0}
+          sublabel="Crates in dairy ready to issue"
+          icon={CheckCircle2}
+          loading={loading}
+          tone="success"
+        />
+        <MetricCard
+          label="Crates With Vehicles"
+          value={s?.with_vehicles ?? 0}
+          sublabel="Outstanding on delivery vehicles"
+          icon={Truck}
+          loading={loading}
+          tone="accent"
+        />
+        <MetricCard
+          label="Crates With Parties"
+          value={s?.with_parties ?? 0}
+          sublabel="Outstanding with buyers / traders"
+          icon={Users}
           loading={loading}
           tone="primary"
-          hint="Ready to issue"
-        />
-        <Stat label="With vehicles" value={s?.with_vehicles ?? 0} loading={loading} />
-        <Stat label="With parties" value={s?.with_parties ?? 0} loading={loading} />
-        <Stat
-          label="Outstanding"
-          value={s?.outstanding ?? 0}
-          loading={loading}
-          tone="warning"
-          hint="Yet to come back"
         />
       </div>
 
-      <div className="mt-4 grid gap-4 sm:grid-cols-3">
-        <Stat
-          label="Vehicles"
-          value={s?.vehicle_count ?? 0}
-          loading={loading}
-          hint={`${s?.active_vehicle_count ?? 0} active`}
-        />
-        <Stat
-          label="Parties"
-          value={s?.party_count ?? 0}
-          loading={loading}
-          hint={`${s?.active_party_count ?? 0} active`}
-        />
-        <Stat label="Movements recorded" value={s?.transaction_count ?? 0} loading={loading} />
-      </div>
-
-      <div className="mt-6 grid gap-6 lg:grid-cols-2">
-        <section className="panel p-5">
-          <div className="mb-4 flex items-center gap-2">
-            <Truck className="size-4 text-muted-foreground" />
-            <h2 className="text-base font-semibold">Crates with vehicles</h2>
+      {/* 2 Secondary Summary Cards */}
+      <div className="mt-4 grid gap-4 sm:grid-cols-2">
+        <div className="panel p-5 flex items-center justify-between border bg-card">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-700">
+              <Truck className="size-6" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase">Total Vehicles</p>
+              <p className="font-mono text-2xl font-bold text-foreground">
+                {loading ? "…" : s?.vehicle_count ?? 0}
+              </p>
+            </div>
           </div>
-          {topVehicles.length === 0 ? (
-            <EmptyState
-              icon={Truck}
-              title="No crates with vehicles"
-              description="Once you issue crates to a vehicle, its outstanding balance shows here."
-            />
-          ) : (
-            <ul className="divide-y divide-border">
-              {topVehicles.map((v) => (
-                <li key={v.vehicle_id} className="flex items-center justify-between py-3">
-                  <div>
-                    <p className="font-medium">{v.vehicle_number}</p>
-                    <p className="text-xs text-muted-foreground">{v.driver_name ?? "No driver"}</p>
-                  </div>
-                  <span className="num font-display text-lg font-semibold">{v.balance}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-
-        <section className="panel p-5">
-          <div className="mb-4 flex items-center gap-2">
-            <Users className="size-4 text-muted-foreground" />
-            <h2 className="text-base font-semibold">Crates with parties</h2>
-          </div>
-          {topParties.length === 0 ? (
-            <EmptyState
-              icon={Users}
-              title="No crates with parties"
-              description="Issue crates to a party and their outstanding balance appears here."
-            />
-          ) : (
-            <ul className="divide-y divide-border">
-              {topParties.map((p) => (
-                <li key={p.party_id} className="flex items-center justify-between py-3">
-                  <div>
-                    <p className="font-medium">{p.party_name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      {p.contact_person ?? "No contact"}
-                    </p>
-                  </div>
-                  <span className="num font-display text-lg font-semibold">{p.balance}</span>
-                </li>
-              ))}
-            </ul>
-          )}
-        </section>
-      </div>
-
-      <section className="panel mt-6 p-5">
-        <div className="mb-4 flex items-center gap-2">
-          <ArrowLeftRight className="size-4 text-muted-foreground" />
-          <h2 className="text-base font-semibold">Latest movements</h2>
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/vehicles" className="text-xs font-semibold text-primary">
+              View Vehicles →
+            </Link>
+          </Button>
         </div>
-        {(transactions.data ?? []).length === 0 ? (
-          <EmptyState
-            icon={Package}
-            title="No transactions recorded yet"
-            description="Issues and returns will be listed here as they happen."
-            action={
-              <Button asChild>
-                <Link to="/transactions">Record a movement</Link>
-              </Button>
-            }
-          />
-        ) : (
-          <ul className="divide-y divide-border">
-            {transactions.data!.map((t) => (
-              <li key={t.id} className="flex items-center justify-between gap-4 py-3">
-                <div className="min-w-0">
-                  <p className="truncate font-medium">
-                    {t.vehicle_id ? vehicleName(t.vehicle_id) : partyName(t.party_id)}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(t.transaction_date).toLocaleString()}
-                  </p>
-                </div>
-                <div className="flex items-center gap-3">
-                  {t.is_reversal && <Badge variant="outline">Reversal</Badge>}
-                  <Badge variant={t.transaction_type === "ISSUED" ? "default" : "secondary"}>
-                    {t.transaction_type === "ISSUED" ? "Issued" : "Returned"}
-                  </Badge>
-                  <span className="num font-display font-semibold">{t.quantity}</span>
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
 
-      <p className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
-        <Boxes className="size-3.5" /> Figures update automatically when anyone on your team records
-        a movement.
-      </p>
+        <div className="panel p-5 flex items-center justify-between border bg-card">
+          <div className="flex items-center gap-3">
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-emerald-50 text-emerald-700">
+              <Users className="size-6" />
+            </div>
+            <div>
+              <p className="text-xs font-semibold text-muted-foreground uppercase">Total Parties</p>
+              <p className="font-mono text-2xl font-bold text-foreground">
+                {loading ? "…" : s?.party_count ?? 0}
+              </p>
+            </div>
+          </div>
+          <Button asChild variant="ghost" size="sm">
+            <Link to="/parties" className="text-xs font-semibold text-primary">
+              View Parties →
+            </Link>
+          </Button>
+        </div>
+      </div>
+
+      {/* Active Balances Overview */}
+      <div className="mt-6 grid gap-6 lg:grid-cols-2">
+        {/* Vehicles Balances */}
+        <div className="panel overflow-hidden border">
+          <div className="flex items-center justify-between border-b border-border bg-muted/30 px-5 py-3.5">
+            <div className="flex items-center gap-2">
+              <Truck className="size-4 text-primary" />
+              <h2 className="text-sm font-bold text-foreground">Vehicles with Crates</h2>
+            </div>
+            <Link to="/vehicles" className="text-xs font-semibold text-primary hover:underline">
+              View all
+            </Link>
+          </div>
+          <div className="p-0">
+            {(vehicleBalances.data ?? []).filter((v) => v.balance > 0).length === 0 ? (
+              <p className="p-6 text-center text-xs text-muted-foreground">
+                No vehicles currently hold crates.
+              </p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs font-semibold">Vehicle</TableHead>
+                    <TableHead className="text-xs font-semibold">Driver</TableHead>
+                    <TableHead className="text-right text-xs font-semibold">Balance</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {(vehicleBalances.data ?? [])
+                    .filter((v) => v.balance > 0)
+                    .slice(0, 5)
+                    .map((v) => (
+                      <TableRow key={v.vehicle_id}>
+                        <TableCell className="font-mono text-sm font-bold text-foreground">
+                          {v.vehicle_number}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {v.driver_name || "—"}
+                        </TableCell>
+                        <TableCell className="font-mono text-right text-sm font-bold text-primary">
+                          {v.balance}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
+        </div>
+
+        {/* Parties Balances */}
+        <div className="panel overflow-hidden border">
+          <div className="flex items-center justify-between border-b border-border bg-muted/30 px-5 py-3.5">
+            <div className="flex items-center gap-2">
+              <Users className="size-4 text-primary" />
+              <h2 className="text-sm font-bold text-foreground">Parties with Crates</h2>
+            </div>
+            <Link to="/parties" className="text-xs font-semibold text-primary hover:underline">
+              View all
+            </Link>
+          </div>
+          <div className="p-0">
+            {(partyBalances.data ?? []).filter((p) => p.balance > 0).length === 0 ? (
+              <p className="p-6 text-center text-xs text-muted-foreground">
+                No parties currently hold crates.
+              </p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-xs font-semibold">Party Name</TableHead>
+                    <TableHead className="text-xs font-semibold">Contact</TableHead>
+                    <TableHead className="text-right text-xs font-semibold">Balance</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {(partyBalances.data ?? [])
+                    .filter((p) => p.balance > 0)
+                    .slice(0, 5)
+                    .map((p) => (
+                      <TableRow key={p.party_id}>
+                        <TableCell className="text-sm font-semibold text-foreground">
+                          {p.party_name}
+                        </TableCell>
+                        <TableCell className="text-xs text-muted-foreground">
+                          {p.contact_person || "—"}
+                        </TableCell>
+                        <TableCell className="font-mono text-right text-sm font-bold text-primary">
+                          {p.balance}
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Live Movement Log */}
+      <div className="mt-6 panel overflow-hidden border">
+        <div className="flex items-center justify-between border-b border-border bg-muted/30 px-5 py-3.5">
+          <div className="flex items-center gap-2">
+            <Package className="size-4 text-primary" />
+            <h2 className="text-sm font-bold text-foreground">Recent Crate Movements (Live)</h2>
+          </div>
+          <span className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
+            <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+            Realtime Synced
+          </span>
+        </div>
+
+        {(transactions.data ?? []).length === 0 ? (
+          <p className="p-8 text-center text-xs text-muted-foreground">
+            No crate movements recorded yet. Issue or receive crates from Vehicles or Parties.
+          </p>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-xs font-semibold">When</TableHead>
+                <TableHead className="text-xs font-semibold">Movement</TableHead>
+                <TableHead className="text-xs font-semibold">Vehicle / Party</TableHead>
+                <TableHead className="text-right text-xs font-semibold">Quantity</TableHead>
+                <TableHead className="text-xs font-semibold">Notes</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {(transactions.data ?? []).map((tx) => {
+                const isOut =
+                  tx.transaction_type === "VEHICLE_OUT" ||
+                  tx.transaction_type === "PARTY_OUT" ||
+                  tx.transaction_type === "ISSUED";
+
+                const isVehicle = !!tx.vehicle_id;
+                const entityName = isVehicle ? vehicleName(tx.vehicle_id) : partyName(tx.party_id);
+
+                return (
+                  <TableRow key={tx.id}>
+                    <TableCell className="whitespace-nowrap text-xs text-muted-foreground">
+                      {new Date(tx.transaction_date).toLocaleDateString("en-IN", {
+                        day: "numeric",
+                        month: "short",
+                        year: "numeric",
+                      })}
+                    </TableCell>
+                    <TableCell>
+                      <Badge
+                        variant="outline"
+                        className={
+                          isOut
+                            ? "border-blue-500/30 bg-blue-500/10 text-blue-700 font-mono text-[11px]"
+                            : "border-emerald-500/30 bg-emerald-500/10 text-emerald-700 font-mono text-[11px]"
+                        }
+                      >
+                        {isOut ? (
+                          <ArrowUpRight className="mr-1 size-3 text-blue-600" />
+                        ) : (
+                          <ArrowDownLeft className="mr-1 size-3 text-emerald-600" />
+                        )}
+                        {tx.transaction_type}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-xs font-semibold text-foreground">
+                      {entityName}
+                    </TableCell>
+                    <TableCell className="font-mono text-right text-sm font-bold">
+                      <span className={isOut ? "text-blue-700" : "text-emerald-700"}>
+                        {isOut ? "−" : "+"}
+                        {tx.quantity}
+                      </span>
+                    </TableCell>
+                    <TableCell className="max-w-xs truncate text-xs text-muted-foreground">
+                      {tx.notes || "—"}
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
+            </TableBody>
+          </Table>
+        )}
+      </div>
     </AppShell>
   );
 }

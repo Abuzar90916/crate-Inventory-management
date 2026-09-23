@@ -33,9 +33,9 @@ import { errorMessage, invalidateAll, useParties, usePartyBalances, type Party }
 export const Route = createFileRoute("/_authenticated/parties")({
   head: () => ({
     meta: [
-      { title: "Parties — CrateLedger" },
+      { title: "Parties — Narayan Dairy" },
       { name: "description", content: "Manage buyers and traders and the crates they hold." },
-      { property: "og:title", content: "Parties — CrateLedger" },
+      { property: "og:title", content: "Parties — Narayan Dairy" },
       { property: "og:description", content: "Manage buyers and traders and the crates they hold." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

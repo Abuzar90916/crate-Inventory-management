@@ -30,9 +30,9 @@ import { errorMessage, invalidateAll, useAdjustments, useDashboardStats } from "
 export const Route = createFileRoute("/_authenticated/inventory")({
   head: () => ({
     meta: [
-      { title: "Inventory — CrateLedger" },
+      { title: "Inventory — Narayan Dairy" },
       { name: "description", content: "Track total crates owned, outstanding and available." },
-      { property: "og:title", content: "Inventory — CrateLedger" },
+      { property: "og:title", content: "Inventory — Narayan Dairy" },
       { property: "og:description", content: "Track total crates owned, outstanding and available." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

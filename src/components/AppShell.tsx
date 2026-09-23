@@ -1,7 +1,6 @@
 import { useEffect, useState, type ReactNode } from "react";
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
-  Boxes,
   LayoutDashboard,
   Truck,
   Users,
@@ -64,11 +63,27 @@ export function AppShell({
           open ? "flex flex-col" : "hidden lg:flex",
         )}
       >
-        <div className="flex items-center gap-2 px-5 py-5">
-          <Boxes className="size-6 text-sidebar-primary" />
-          <span className="font-display text-lg font-semibold">CrateLedger</span>
+        {/* Brand header */}
+        <div className="flex items-center gap-3 px-4 py-4 border-b border-sidebar-border">
+          <div
+            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white"
+            style={{ boxShadow: "0 1px 4px oklch(0.20 0.08 255 / 0.30)" }}
+          >
+            <img
+              src="/narayan-dairy-logo.svg"
+              alt="Narayan Dairy"
+              className="h-9 w-9 rounded-full object-contain"
+            />
+          </div>
+          <div className="min-w-0">
+            <p className="text-sm font-bold leading-tight text-sidebar-foreground">Narayan Dairy</p>
+            <p className="text-xs leading-tight opacity-60 text-sidebar-foreground">
+              Crate Management
+            </p>
+          </div>
         </div>
-        <nav className="flex-1 space-y-1 px-3">
+
+        <nav className="flex-1 space-y-1 px-3 pt-3">
           {NAV.map(({ to, label, icon: Icon }) => (
             <Link
               key={to}
@@ -85,6 +100,7 @@ export function AppShell({
             </Link>
           ))}
         </nav>
+
         <div className="border-t border-sidebar-border px-4 py-4">
           <p className="truncate text-xs text-sidebar-foreground/60">{email ?? "Signed in"}</p>
           <button
@@ -129,7 +145,7 @@ export function EmptyState({
   description,
   action,
 }: {
-  icon: typeof Boxes;
+  icon: typeof LayoutDashboard;
   title: string;
   description: string;
   action?: ReactNode;

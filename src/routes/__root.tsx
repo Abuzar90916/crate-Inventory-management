@@ -10,7 +10,7 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
+import { reportError } from "../lib/error-reporting";
 import { Toaster } from "@/components/ui/sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -40,7 +40,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    reportError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 
   return (
@@ -79,15 +79,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "CrateLedger — crate tracking" },
+      { title: "Narayan Dairy — Crate Management" },
       {
         name: "description",
-        content: "Track crates issued to vehicles and parties with live balances.",
+        content: "Crate inventory management system for Narayan Dairy.",
       },
-      { property: "og:title", content: "CrateLedger — crate tracking" },
+      { property: "og:title", content: "Narayan Dairy — Crate Management" },
       {
         property: "og:description",
-        content: "Track crates issued to vehicles and parties with live balances.",
+        content: "Crate inventory management system for Narayan Dairy.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

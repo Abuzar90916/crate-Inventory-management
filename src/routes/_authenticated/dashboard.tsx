@@ -17,9 +17,9 @@ import {
 export const Route = createFileRoute("/_authenticated/dashboard")({
   head: () => ({
     meta: [
-      { title: "Dashboard — CrateLedger" },
+      { title: "Dashboard — Narayan Dairy" },
       { name: "description", content: "Live crate totals, outstanding balances and recent movements." },
-      { property: "og:title", content: "Dashboard — CrateLedger" },
+      { property: "og:title", content: "Dashboard — Narayan Dairy" },
       { property: "og:description", content: "Live crate totals, outstanding balances and recent movements." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

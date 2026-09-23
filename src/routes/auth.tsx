@@ -1,24 +1,22 @@
 import { useState } from "react";
 import { createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
-import { Boxes, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
-import { lovable } from "@/integrations/lovable/index";
-import { errorMessage } from "@/lib/crates";
 
 export const Route = createFileRoute("/auth")({
   head: () => ({
     meta: [
-      { title: "Sign in — CrateLedger" },
-      { name: "description", content: "Sign in to manage crate inventory, vehicles and parties." },
-      { property: "og:title", content: "Sign in — CrateLedger" },
+      { title: "Sign in — Narayan Dairy Crate Management" },
+      { name: "description", content: "Sign in to manage crate inventory for Narayan Dairy." },
+      { property: "og:title", content: "Sign in — Narayan Dairy Crate Management" },
       {
         property: "og:description",
-        content: "Sign in to manage crate inventory, vehicles and parties.",
+        content: "Sign in to manage crate inventory for Narayan Dairy.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -30,120 +28,116 @@ export const Route = createFileRoute("/auth")({
 function AuthPage() {
   const navigate = useNavigate();
   const router = useRouter();
-  const [mode, setMode] = useState<"signin" | "signup">("signin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
   const [busy, setBusy] = useState(false);
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
     try {
-      if (mode === "signup") {
-        const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            emailRedirectTo: window.location.origin,
-            data: { name },
-          },
-        });
-        if (error) throw error;
-        if (!data.session) {
-          toast.success("Check your inbox to confirm your email, then sign in.");
-          setMode("signin");
-          return;
-        }
-      } else {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) throw error;
-      }
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      if (error) throw error;
       await router.invalidate();
       await navigate({ to: "/dashboard" });
-    } catch (error) {
-      toast.error(errorMessage(error, "Could not sign you in."));
+    } catch {
+      toast.error("Invalid email or password.");
     } finally {
       setBusy(false);
     }
   }
 
-  async function handleGoogle() {
-    setBusy(true);
-    const result = await lovable.auth.signInWithOAuth("google", {
-      redirect_uri: window.location.origin,
-    });
-    if (result.error) {
-      setBusy(false);
-      toast.error("Google sign-in failed. Please try again.");
-      return;
-    }
-    if (result.redirected) return;
-    await router.invalidate();
-    await navigate({ to: "/dashboard" });
-  }
-
   return (
-    <div className="grid min-h-screen lg:grid-cols-2">
-      <div className="hidden flex-col justify-between bg-sidebar p-12 text-sidebar-foreground lg:flex">
-        <div className="flex items-center gap-3">
-          <Boxes className="size-7 text-sidebar-primary" />
-          <span className="font-display text-xl font-semibold">CrateLedger</span>
-        </div>
-        <div className="max-w-md space-y-4">
-          <h1 className="text-4xl leading-tight font-semibold">
-            Know exactly where every crate is.
-          </h1>
-          <p className="text-sidebar-foreground/70">
-            Issue and receive crates against vehicles and buyers. Balances are calculated from the
-            recorded movements, and every team member sees the same live numbers.
-          </p>
-        </div>
-        <p className="text-sm text-sidebar-foreground/50">Shared ledger · live updates · audit trail</p>
-      </div>
-
-      <div className="flex items-center justify-center px-6 py-16">
-        <div className="w-full max-w-sm">
-          <div className="mb-8 flex items-center gap-2 lg:hidden">
-            <Boxes className="size-6 text-primary" />
-            <span className="font-display text-lg font-semibold">CrateLedger</span>
+    <div
+      className="flex min-h-screen items-center justify-center px-4 py-12"
+      style={{
+        background:
+          "linear-gradient(135deg, oklch(0.95 0.025 240) 0%, oklch(0.98 0.010 240) 50%, oklch(0.96 0.020 255) 100%)",
+      }}
+    >
+      <div className="w-full max-w-md">
+        {/* Card */}
+        <div
+          className="rounded-2xl bg-white px-8 py-10 shadow-xl"
+          style={{
+            border: "1.5px solid oklch(0.80 0.04 240)",
+            boxShadow:
+              "0 4px 6px -1px oklch(0.30 0.10 255 / 0.08), 0 20px 60px -8px oklch(0.30 0.10 255 / 0.15)",
+          }}
+        >
+          {/* Logo area */}
+          <div className="mb-6 flex flex-col items-center">
+            <div
+              className="mb-4 flex h-28 w-28 items-center justify-center rounded-full bg-white"
+              style={{
+                border: "2px solid oklch(0.80 0.06 240)",
+                boxShadow: "0 2px 12px oklch(0.40 0.12 255 / 0.15)",
+              }}
+            >
+              <img
+                src="/narayan-dairy-logo.svg"
+                alt="Narayan Dairy Logo"
+                className="h-24 w-24 object-contain"
+                style={{ borderRadius: "50%" }}
+              />
+            </div>
+            <h1
+              className="text-xl font-bold tracking-tight"
+              style={{ color: "oklch(0.22 0.09 255)", fontFamily: "Space Grotesk, sans-serif" }}
+            >
+              Narayan Dairy
+            </h1>
+            <p
+              className="mt-0.5 text-sm font-semibold tracking-wide"
+              style={{ color: "oklch(0.45 0.12 255)" }}
+            >
+              Crate Management
+            </p>
+            <p className="mt-1 text-xs text-gray-400 tracking-widest uppercase">
+              Secure Inventory System
+            </p>
           </div>
-          <h2 className="text-2xl font-semibold">
-            {mode === "signin" ? "Sign in" : "Create your account"}
-          </h2>
-          <p className="mt-1 text-sm text-muted-foreground">
-            {mode === "signin"
-              ? "Use your work email to open the crate ledger."
-              : "The first account created becomes the administrator."}
-          </p>
 
-          <form onSubmit={handleSubmit} className="mt-8 space-y-4">
-            {mode === "signup" && (
-              <div className="space-y-2">
-                <Label htmlFor="name">Your name</Label>
-                <Input
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
-                  placeholder="Priya Sharma"
-                  autoComplete="name"
-                />
-              </div>
-            )}
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+          {/* Divider */}
+          <div className="my-5 flex items-center gap-3">
+            <span className="h-px flex-1" style={{ background: "oklch(0.88 0.018 240)" }} />
+            <span className="text-xs font-medium" style={{ color: "oklch(0.60 0.05 245)" }}>
+              Welcome back
+            </span>
+            <span className="h-px flex-1" style={{ background: "oklch(0.88 0.018 240)" }} />
+          </div>
+
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="email"
+                className="text-sm font-medium"
+                style={{ color: "oklch(0.30 0.08 252)" }}
+              >
+                Email
+              </Label>
               <Input
                 id="email"
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="you@company.com"
+                placeholder="you@narayandairy.com"
                 autoComplete="email"
+                className="h-11 rounded-lg border transition-shadow focus:shadow-sm"
+                style={{ borderColor: "oklch(0.82 0.04 240)" }}
               />
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+
+            <div className="space-y-1.5">
+              <Label
+                htmlFor="password"
+                className="text-sm font-medium"
+                style={{ color: "oklch(0.30 0.08 252)" }}
+              >
+                Password
+              </Label>
               <Input
                 id="password"
                 type="password"
@@ -151,36 +145,39 @@ function AuthPage() {
                 minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                autoComplete={mode === "signin" ? "current-password" : "new-password"}
+                autoComplete="current-password"
+                className="h-11 rounded-lg border transition-shadow focus:shadow-sm"
+                style={{ borderColor: "oklch(0.82 0.04 240)" }}
               />
             </div>
-            <Button type="submit" className="w-full" disabled={busy}>
-              {busy && <Loader2 className="size-4 animate-spin" />}
-              {mode === "signin" ? "Sign in" : "Create account"}
+
+            <Button
+              id="login-submit"
+              type="submit"
+              className="mt-2 h-11 w-full rounded-lg text-sm font-semibold tracking-wide transition-all"
+              disabled={busy}
+              style={{
+                background: "oklch(0.28 0.10 255)",
+                color: "white",
+              }}
+            >
+              {busy && <Loader2 className="mr-2 size-4 animate-spin" />}
+              {busy ? "Signing in…" : "LOGIN"}
             </Button>
           </form>
 
-          <div className="my-6 flex items-center gap-3 text-xs text-muted-foreground">
-            <span className="h-px flex-1 bg-border" />
-            or
-            <span className="h-px flex-1 bg-border" />
-          </div>
-
-          <Button variant="outline" className="w-full" onClick={handleGoogle} disabled={busy}>
-            Continue with Google
-          </Button>
-
-          <p className="mt-6 text-center text-sm text-muted-foreground">
-            {mode === "signin" ? "No account yet?" : "Already registered?"}{" "}
-            <button
-              type="button"
-              className="font-medium text-primary underline-offset-4 hover:underline"
-              onClick={() => setMode(mode === "signin" ? "signup" : "signin")}
-            >
-              {mode === "signin" ? "Create one" : "Sign in"}
-            </button>
+          {/* Footer */}
+          <p className="mt-6 text-center text-xs" style={{ color: "oklch(0.65 0.03 240)" }}>
+            Access is restricted to authorized personnel only.
+            <br />
+            Contact your administrator for access.
           </p>
         </div>
+
+        {/* Bottom branding */}
+        <p className="mt-5 text-center text-xs" style={{ color: "oklch(0.60 0.05 245)" }}>
+          © {new Date().getFullYear()} Narayan Dairy · Crate Management System
+        </p>
       </div>
     </div>
   );

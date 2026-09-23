@@ -49,9 +49,9 @@ import {
 export const Route = createFileRoute("/_authenticated/transactions")({
   head: () => ({
     meta: [
-      { title: "Movements — CrateLedger" },
+      { title: "Movements — Narayan Dairy" },
       { name: "description", content: "Issue crates, record returns and review the full history." },
-      { property: "og:title", content: "Movements — CrateLedger" },
+      { property: "og:title", content: "Movements — Narayan Dairy" },
       { property: "og:description", content: "Issue crates, record returns and review the full history." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

@@ -24,9 +24,9 @@ import {
 export const Route = createFileRoute("/_authenticated/reports")({
   head: () => ({
     meta: [
-      { title: "Reports — CrateLedger" },
+      { title: "Reports — Narayan Dairy" },
       { name: "description", content: "Outstanding crates by holder with CSV export." },
-      { property: "og:title", content: "Reports — CrateLedger" },
+      { property: "og:title", content: "Reports — Narayan Dairy" },
       { property: "og:description", content: "Outstanding crates by holder with CSV export." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },

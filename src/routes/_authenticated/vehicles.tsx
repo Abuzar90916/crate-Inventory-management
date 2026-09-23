@@ -33,9 +33,9 @@ import { errorMessage, invalidateAll, useVehicleBalances, useVehicles, type Vehi
 export const Route = createFileRoute("/_authenticated/vehicles")({
   head: () => ({
     meta: [
-      { title: "Vehicles — CrateLedger" },
+      { title: "Vehicles — Narayan Dairy" },
       { name: "description", content: "Manage vehicles and see how many crates each one holds." },
-      { property: "og:title", content: "Vehicles — CrateLedger" },
+      { property: "og:title", content: "Vehicles — Narayan Dairy" },
       { property: "og:description", content: "Manage vehicles and see how many crates each one holds." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
